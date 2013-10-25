@@ -210,10 +210,10 @@ class ForgotPasswordProcessTest(SkyVisitorViewsTestCase):
         response = self.client.get(self._get_password_reset_url())
         self.assertEqual(response.status_code, 200)
         # User ID of this token is modified
-        response = self.client.get('/user/forgot_password/2-35t-d4e092280eb134000672/', follow=True)
+        response = self.client.get('/user/reset_password/2-35t-d4e092280eb134000672/', follow=True)
         self.assertRedirects(response, '/user/login/')
         # Token modified
-        response = self.client.get('/user/forgot_password/1-35t-d4e092280eb134000671/', follow=True)
+        response = self.client.get('/user/reset_password/1-35t-d4e092280eb134000671/', follow=True)
         self.assertRedirects(response, '/user/login/')
 
 

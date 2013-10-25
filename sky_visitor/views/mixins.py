@@ -24,9 +24,12 @@ from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_by_path
 
-from emailtemplates.utils import send_email_template
+from ..exceptions import ImproperlyConfigured
 
+TEMPLATE_EMAIL_SENDER = getattr(settings, 'SKY_TEMPLATE_EMAIL_SENDER', 'sky_visitor.template_email_senders.DjangoTemplateSender')
+TEMPLATE_EMAIL_SENDER_CLASS = import_by_path(TEMPLATE_EMAIL_SENDER)
 
 class LoginRequiredMixin(object):
     u"""Ensures that user must be authenticated in order to access view."""
@@ -37,8 +40,12 @@ class LoginRequiredMixin(object):
 
 
 class SendTokenEmailMixin(object):
-    email_template = None
+    email_template_name = None
     token_view_name = None
+
+
+    def get_email_template_name(self):
+        return self.email_template_name
 
     def get_email_context_data(self, user, **kwargs):
         token_view_name = kwargs.get('token_view_name', self.token_view_name)
@@ -52,6 +59,7 @@ class SendTokenEmailMixin(object):
         static_url = settings.STATIC_URL
 
         token_url = reverse(token_view_name, kwargs={'uidb36': uidb36, 'token': token})
+
         if hasattr(self, 'request'):
             token_url = self.request.build_absolute_uri(token_url)
             if '://' not in static_url:
@@ -72,15 +80,14 @@ class SendTokenEmailMixin(object):
         to_address = getattr(user, 'email', None)
         if not to_address:
             return False
-        template_name = kwargs.get('template_name', self.email_template)
-        if not template_name:
+
+        email_template_name = kwargs.get('template_name', self.get_email_template_name())
+
+        if not email_template_name:
             raise ImproperlyConfigured("No email_template defined.")
 
         context = self.get_email_context_data(user, **kwargs)
-        return send_email_template(template_name, [to_address], 
-            context=context, 
-            attachments=kwargs.get('attachments',None),
-            headers=kwargs.get('headers',None))
+        TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name, to_address=to_address, context=context, **kwargs)
 
 
 class TokenValidateMixin(object):

@@ -28,6 +28,7 @@ LOGIN_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
     'normal_tests',
+    'emailtemplates',
     'sky_visitor',
 
     'django.contrib.auth',

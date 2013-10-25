@@ -23,6 +23,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import CreateView, FormView, RedirectView, TemplateView
 from django.utils.translation import ugettext_lazy as _
+
 from sky_visitor.models import InvitedUser
 from sky_visitor.backends import auto_login
 from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationStartForm, InvitationCompleteForm
@@ -160,12 +161,12 @@ class LogoutView(RedirectView):
 class ForgotPasswordView(SendTokenEmailMixin, FormView):
     form_class = PasswordResetForm
     template_name = 'sky_visitor/forgot_password_start.html'
-    email_template = 'visitor-forgot-password'
+    email_template_name = 'sky_visitor/email/visitor-forgot-password.html'
     token_view_name = 'reset_password'
 
     def form_valid(self, form):
         user = form.users_cache[0]
-        self.send_email(user)
+        self.send_email(user, subject="Password reset for testserver")
         return super(ForgotPasswordView, self).form_valid(form)  # Do redirect
 
     def get_success_url(self):
@@ -232,8 +233,10 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
 class InvitationStartView(SendTokenEmailMixin, CreateView):
     form_class = InvitationStartForm
     template_name = 'sky_visitor/invitation_start.html'
+    email_template_name = 'sky_visitor/email/invitation_complete.html'
+
     success_message = _("Invitation successfully delivered.")
-    email_template = 'invitation_complete'
+    token_view_name = 'invitation_complete'
 
     def get_user_object(self):
         """
@@ -247,7 +250,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
 
     def form_valid(self, form):
         redirect = super(InvitationStartView, self).form_valid(form)
-        self.send_email(self.get_user_object())
+        self.send_email(self.get_user_object(), subject="Invitation to Create Account at testserver")
         return redirect
 
     def get_success_url(self):
@@ -265,7 +268,8 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     form_class = InvitationCompleteForm
     auto_login_on_success = True
     template_name = 'sky_visitor/invitation_complete.html'
-    invalid_token_message = _("This one-time use invitation URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
+    invalid_token_message = _(
+        "This one-time use invitation URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
     success_message = _("Account successfully created.")
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
