@@ -24,12 +24,11 @@ from django.utils.decorators import method_decorator
 from django.utils.functional import cached_property
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_by_path
+
 
 from ..exceptions import ImproperlyConfigured
+from ..config import TEMPLATE_EMAIL_SENDER_CLASS
 
-TEMPLATE_EMAIL_SENDER = getattr(settings, 'SKY_TEMPLATE_EMAIL_SENDER', 'sky_visitor.template_email_senders.DjangoTemplateSender')
-TEMPLATE_EMAIL_SENDER_CLASS = import_by_path(TEMPLATE_EMAIL_SENDER)
 
 class LoginRequiredMixin(object):
     u"""Ensures that user must be authenticated in order to access view."""

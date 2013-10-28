@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'normal_tests',
     'emailtemplates',
     'sky_visitor',
+    'south',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',

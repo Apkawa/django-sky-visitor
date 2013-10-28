@@ -11,12 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import forms as auth_forms, get_user_model
+
 from sky_visitor.forms.fields import PasswordRulesField
 from sky_visitor.models import InvitedUser
+from ..config import SEND_USER_PASSWORD
 
 
 class RegisterForm(auth_forms.UserCreationForm):
@@ -71,7 +74,17 @@ class InvitationStartForm(forms.ModelForm):
 
     class Meta:
         model = InvitedUser
-        fields = ['email']
+        fields = ['email', 'name']
+
+    def __init__(self, *args, **kwargs):
+        super(InvitationStartForm, self).__init__(*args, **kwargs)
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        UserModel = get_user_model()
+        if UserModel._default_manager.filter(username=username).exists():
+            raise ValidationError(_("User with this username already exists."))
+        return username
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -95,6 +108,7 @@ class InvitationCompleteForm(RegisterForm):
         initial = kwargs.get('initial', None)
         if 'email' not in initial:
             initial.update({'email': self.invited_user.email})
+
         super(InvitationCompleteForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
@@ -108,6 +122,7 @@ class InvitationCompleteForm(RegisterForm):
             invited_user.created_user = user
             invited_user.status = InvitedUser.STATUS_REGISTERED
             invited_user.save()
+
         if commit:
             save_invited_user()
         else:

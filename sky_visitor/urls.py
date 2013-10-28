@@ -26,5 +26,4 @@ urlpatterns = patterns('',
     url(r'^change_password/$', ChangePasswordView.as_view(), name='change_password'),
     url(r'invitation/$', InvitationStartView.as_view(), name='invitation_start'),
     url(r'invitation/%s/$' % TOKEN_REGEX, InvitationCompleteView.as_view(), name='invitation_complete'),
-#     url(r'invitation/done/$',   InvitationDoneView.as_view(),   name='invitation_done'),
 )
