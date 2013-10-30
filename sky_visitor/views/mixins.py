@@ -40,11 +40,16 @@ class LoginRequiredMixin(object):
 
 class SendTokenEmailMixin(object):
     email_template_name = None
+    subject = None
+
     token_view_name = None
 
 
     def get_email_template_name(self):
         return self.email_template_name
+
+    def get_subject(self):
+        return self.subject or ''
 
     def get_email_context_data(self, user, **kwargs):
         token_view_name = kwargs.get('token_view_name', self.token_view_name)
@@ -86,7 +91,8 @@ class SendTokenEmailMixin(object):
             raise ImproperlyConfigured("No email_template defined.")
 
         context = self.get_email_context_data(user, **kwargs)
-        TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name, to_address=to_address, context=context, **kwargs)
+        TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name,
+                        to_address=to_address, context=context, subject=self.get_subject(), **kwargs)
 
 
 class TokenValidateMixin(object):

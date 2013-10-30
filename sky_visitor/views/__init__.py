@@ -15,6 +15,7 @@ from django.contrib import auth
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
@@ -248,6 +249,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
         """
         return self.object
 
+    @transaction.commit_on_success()
     def form_valid(self, form):
         redirect = super(InvitationStartView, self).form_valid(form)
         self.send_email(self.get_user_object(), subject="Invitation to Create Account at testserver")
