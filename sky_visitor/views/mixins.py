@@ -90,9 +90,15 @@ class SendTokenEmailMixin(object):
         if not email_template_name:
             raise ImproperlyConfigured("No email_template defined.")
 
+        sender_kwargs = {
+            'subject': self.get_subject(),
+        }
+
         context = self.get_email_context_data(user, **kwargs)
+
+        sender_kwargs.update(kwargs)
         TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name,
-                        to_address=to_address, context=context, subject=self.get_subject(), **kwargs)
+                        to_address=to_address, context=context, **sender_kwargs)
 
 
 class TokenValidateMixin(object):

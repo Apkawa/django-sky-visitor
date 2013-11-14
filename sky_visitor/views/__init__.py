@@ -164,10 +164,11 @@ class ForgotPasswordView(SendTokenEmailMixin, FormView):
     template_name = 'sky_visitor/forgot_password_start.html'
     email_template_name = 'sky_visitor/email/visitor-forgot-password.html'
     token_view_name = 'reset_password'
+    subject = "Password reset for testserver"
 
     def form_valid(self, form):
         user = form.users_cache[0]
-        self.send_email(user, subject="Password reset for testserver")
+        self.send_email(user)
         return super(ForgotPasswordView, self).form_valid(form)  # Do redirect
 
     def get_success_url(self):
@@ -238,6 +239,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
 
     success_message = _("Invitation successfully delivered.")
     token_view_name = 'invitation_complete'
+    subject = "Invitation to Create Account at testserver"
 
     def get_user_object(self):
         """
@@ -252,7 +254,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
     @transaction.commit_on_success()
     def form_valid(self, form):
         redirect = super(InvitationStartView, self).form_valid(form)
-        self.send_email(self.get_user_object(), subject="Invitation to Create Account at testserver")
+        self.send_email(self.get_user_object())
         return redirect
 
     def get_success_url(self):
