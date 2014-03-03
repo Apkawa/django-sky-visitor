@@ -15,6 +15,8 @@ import datetime
 from django.conf import settings
 from django.db import models
 
+from django.utils.translation import ugettext_lazy as _
+
 from utils import Encryption, make_password
 
 
@@ -25,7 +27,9 @@ class InvitedUser(models.Model):
         (STATUS_INVITED, "Invited"),
         (STATUS_REGISTERED, "Registered"),
     )
-    email = models.EmailField(max_length=254, unique=True)
+    email = models.EmailField(max_length=254, unique=True, error_messages={
+        u"unique": _(u"Invitation to registration already sended.")
+    })
     status = models.CharField(max_length=32, default=STATUS_INVITED, choices=STATUS_CHOICES)
     created_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     name = models.CharField(max_length=256, null=True, blank=True)
