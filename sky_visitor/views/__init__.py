@@ -16,7 +16,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.db import transaction
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
@@ -25,6 +25,13 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import CreateView, FormView, RedirectView, TemplateView
 from django.utils.translation import ugettext_lazy as _
+
+from django.db import transaction
+
+try:
+    atomic = transaction.atomic
+except AttributeError:
+    atomic = transaction.commit_on_success
 
 from sky_visitor.models import InvitedUser
 from sky_visitor.backends import auto_login
@@ -263,7 +270,7 @@ class InvitationStartView(SendTokenEmailMixin, CreateView):
         """
         return self.object
 
-    @transaction.commit_on_success()
+    @atomic()
     def form_valid(self, form):
         redirect = super(InvitationStartView, self).form_valid(form)
         self.send_email(self.get_user_object())
