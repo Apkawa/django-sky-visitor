@@ -17,6 +17,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.models import Site
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import resolve_url
@@ -26,7 +27,6 @@ from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 
 
-from ..exceptions import ImproperlyConfigured
 from ..config import TEMPLATE_EMAIL_SENDER_CLASS
 
 
@@ -97,7 +97,7 @@ class SendTokenEmailMixin(object):
         context = self.get_email_context_data(user, **kwargs)
 
         sender_kwargs.update(kwargs)
-        TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name,
+        return TEMPLATE_EMAIL_SENDER_CLASS().send(template_name=email_template_name,
                         to_address=to_address, context=context, **sender_kwargs)
 
 

@@ -1,26 +1,20 @@
-A full featured authentication and user system that complements django.contib.auth.
+![Concentric Sky](https://concentricsky.com/media/uploads/images/csky_logo.jpg)
 
 
-# Features
+# Sky Visitor
 
-  * Class-based view implementations of all of the views
-  * Invitation emailed to users, where they can complete their registration
-  * Password rules
+Sky Visitor is an open-source Django library developed by [Concentric Sky](http://concentricsky.com/). It is a full-featured authentication and user system that complements django.contib.auth.
 
-## Advanced usage
-
-  * Override URLs and views to provide custom workflows
-  * Customize views and URLs
-  * Customize forms
-  * Choose to not automatically log a user in after they compelte a registration, or password reset
-
-## Messages
-This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
-around after certain events (password reset completion, for example). If you would like to improve the experience for
-your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
+### Table of Contents
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Testing](#testing)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [About Concentric Sky](#about-concentric-sky)
 
 
-# Setup & Configuration
+## Installation
 
 Install this package using pip:
 
@@ -28,21 +22,49 @@ Install this package using pip:
 
 Add `'sky_visitor'` to your `INSTALLED_APPS` array.
 
+    INSTALLED_APPS = [
+        ...
+        'sky_visitor',
+        ...
+    ]
+
 You must specify `SECRET_KEY` in your settings for any emails with tokens to be secure (example: invitation, confirm email address, forgot password, etc)
 
 You must at least set `LOGIN_URL` to `"login"`. You can optionally specify another valid URL or URL name of your own. Certain views in Sky Visitor depend on an accurate value for this setting and the default value in Django core (`"/authentication/login/"`) is likely invalid unless you have created it.
+
+
+## Getting Started
 
 If you wish to use the default URLs, add them to your `urls.py` like so:
 
     url(r'^user/', include('sky_visitor.urls')),
 
+### Basic Features
 
-# Testing
+  * Class-based view implementations of all of the views
+  * Invitation emailed to users, where they can complete their registration
+  * Password rules
+
+### Advanced Usage
+
+  * Override URLs and views to provide custom workflows
+  * Customize views and URLs
+  * Customize forms
+  * Choose to not automatically log a user in after they compelte a registration, or password reset
+
+### Messages
+
+This app uses the [messages framework](https://docs.djangoproject.com/en/dev/ref/contrib/messages/) to pass success messages
+around after certain events (password reset completion, for example). If you would like to improve the experience for
+your users in this way, make sure you follow the message framework docs to enable and render these messages on your site.
+
+
+## Testing
 
 Tests are broken into two separate apps running under three different "modes":
 
   1. "normal user" mode (default)
-    * Uses `noramluser_tests/settings.py`
+    * Uses `normaluser_tests/settings.py`
     * Uses `django.contrib.auth.models.User` as the user model
     * Contains the base tests
   2. "custom user" mode
@@ -60,7 +82,7 @@ You can run the tests like so:
     ./manage.py test --settings=customuser_tests.settings
 
 
-# Roadmap
+## Roadmap
 
 Features to add:
 
@@ -75,11 +97,15 @@ Improvements to documentation:
   * List all template paths that the default templates will look for
 
 
-# Contributing
+## License
+
+This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Details can be found in the LICENSE.md file.
+
+### Contributing
+
 Please fork this repo and send pull requests. Submit issues/questions/suggestions in the [issue queue](https://github.com/concentricsky/django-sky-visitor/issues).
 
 
-# Author
-Built at [Concentric Sky](http://www.concentricsky.com/) by [Jeremy Blanchard](http://github.com/auzigog/).
+## About Concentric Sky
 
-This project is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Copyright 2013 Concentric Sky, Inc.
+_For nearly a decade, Concentric Sky has been building technology solutions that impact people everywhere. We work in the mobile, enterprise and web application spaces. Our team, based in Eugene Oregon, loves to solve complex problems. Concentric Sky believes in contributing back to our community and one of the ways we do that is by open sourcing our code on GitHub. Contact Concentric Sky at hello@concentricsky.com._
