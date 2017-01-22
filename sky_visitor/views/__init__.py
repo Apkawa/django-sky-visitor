@@ -35,8 +35,18 @@ except AttributeError:
 
 from sky_visitor.models import InvitedUser
 from sky_visitor.backends import auto_login
-from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, InvitationStartForm, InvitationCompleteForm
+from sky_visitor.forms import RegisterForm, LoginForm, PasswordResetForm, SetPasswordForm, PasswordChangeForm, \
+    InvitationStartForm, InvitationCompleteForm
 from sky_visitor.views.mixins import SendTokenEmailMixin, TokenValidateMixin, LoginRequiredMixin
+
+
+def try_get_or_post_key(request, key, default=None):
+    for dict in [request.GET, request.POST]:
+        try:
+            return dict[key]
+        except KeyError:
+            pass
+    return default
 
 
 class RegisterView(CreateView):
@@ -94,7 +104,7 @@ class LoginView(FormView):
         """
         This will default to the "next" field if available, unless success_url_overrides_redirect_field is True, then it will default to that.
         """
-        redirect_to = self.request.REQUEST.get(self.redirect_field_name, '')
+        redirect_to = try_get_or_post_key(self.request, self.redirect_field_name, '')
 
         # Ensure the user-originating redirection url is safe.
         if not is_safe_url(url=redirect_to, host=self.request.get_host()):
@@ -156,13 +166,13 @@ class LogoutView(RedirectView):
         if self.redirect_url_overrides_redirect_field:
             return super(LogoutView, self).get_redirect_url(**kwargs)
 
-        redirect_to = reverse('login')
-
-        if self.redirect_field_name in self.request.REQUEST:
-            redirect_to = self.request.REQUEST[self.redirect_field_name]
+        redirect_to = try_get_or_post_key(self.request, self.redirect_field_name, None)
+        if redirect_to:
             # Security check -- don't allow redirection to a different host.
             if not is_safe_url(url=redirect_to, host=self.request.get_host()):
                 redirect_to = self.request.path
+        else:
+            redirect_to = reverse('login')
 
         return redirect_to
 
@@ -294,6 +304,7 @@ class InvitationCompleteView(TokenValidateMixin, CreateView):
     invalid_token_message = _(
         "This one-time use invitation URL has already been used. This means you have likely already created an account. Please try to login or use the forgot password form.")
     success_message = _("Account successfully created.")
+
     # Since this is an UpdateView, the default success_url will be the user's get_absolute_url(). Override if you'd like different behavior
 
     def get_user_model_class(self):
